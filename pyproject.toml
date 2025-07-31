@@ -1,0 +1,16 @@
+[project]
+name = "pandoc-docx-converter"
+version = "0.1.0"
+description = "一个基于 FastAPI 的文档转换服务，支持 Markdown 到 Word 文档的转换"
+readme = "README.md"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+
+requires-python = ">=3.8"
+dependencies = [
+    "fastapi>=0.104.0",
+    "python-multipart>=0.0.6",
+    "uvicorn[standard]>=0.24.0",
+]
+
