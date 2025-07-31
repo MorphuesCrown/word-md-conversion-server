@@ -52,6 +52,7 @@ async def md_to_word(file: UploadFile = File(...)):
 
 @app.post("/word-to-md")
 async def word_to_md(file: UploadFile = File(...)):
+    print("word-to-md")
     if not file.filename.endswith(".docx") and not file.filename.endswith(".doc"):
         raise HTTPException(status_code=400, detail="仅支持 .docx 或 .doc 文件")
 
@@ -66,6 +67,17 @@ async def word_to_md(file: UploadFile = File(...)):
         # 保存上传的 Word 文件
         with open(input_path, "wb") as f:
             f.write(await file.read())
+
+        if input_path.endswith(".doc"):
+            subprocess.run([
+                "libreoffice",
+                "--headless",
+                "--convert-to", "docx",
+                input_path,
+                "--outdir", os.path.dirname(input_path)
+                
+            ], check=True)
+            input_path = input_path.replace(".doc", ".docx")
 
         media_dir = os.path.join(tmpdir, "media")
 
