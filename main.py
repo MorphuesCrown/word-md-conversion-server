@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 import tempfile
 import subprocess
 import os
@@ -9,11 +10,11 @@ import shutil
 
 app = FastAPI()
 
-@app.post("/md-to-word")
-async def md_to_word(file: UploadFile = File(...)):
-    if not file.filename.endswith(".md"):
-        raise HTTPException(status_code=400, detail="仅支持 .md 文件")
+class MarkdownRequest(BaseModel):
+    content: str
 
+@app.post("/md-to-word")
+async def md_to_word(request: MarkdownRequest):
     with tempfile.TemporaryDirectory() as tmpdir:
         input_path = os.path.join(tmpdir, "input.md")
         
@@ -21,9 +22,9 @@ async def md_to_word(file: UploadFile = File(...)):
         with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as tmp_output:
             output_path = tmp_output.name
 
-        # 保存上传的 Markdown 文件
-        with open(input_path, "wb") as f:
-            f.write(await file.read())
+        # 保存 Markdown 内容到文件
+        with open(input_path, "w", encoding="utf-8") as f:
+            f.write(request.content)
 
         # 调用 pandoc 进行转换
         try:
@@ -111,17 +112,8 @@ async def word_to_md(file: UploadFile = File(...)):
                 pattern = re.escape(file)
                 md_content = re.sub(rf'\(([^)]*{pattern})\)', f'({data_uri})', md_content)
 
-        # 写入最终 Markdown 文件
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write(md_content)
-
         # 清除media目录
         shutil.rmtree(media_dir)
 
-        # 返回 Markdown 文件
-        return FileResponse(
-            output_path,
-            media_type="text/markdown",
-            filename="result.md"
-        )
-
+        # 返回 Markdown 字符串
+        return md_content
