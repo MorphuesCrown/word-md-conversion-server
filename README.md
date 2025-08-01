@@ -25,7 +25,7 @@ curl -X POST "http://localhost:8000/word-to-md" \
   -F "file=@test.docx" \
   --output result.md
 
-curl -X POST "http://10.88.36.61:8000/md-to-word" \
+curl -X POST "http://localhost:8000/md-to-word" \
   -H "Content-Type: application/json" \
   -d '{"content": "# 测试标题\n\n这是测试内容"}' \
   --output result.docx
