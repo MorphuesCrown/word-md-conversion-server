@@ -116,4 +116,4 @@ async def word_to_md(file: UploadFile = File(...)):
         shutil.rmtree(media_dir)
 
         # 返回 Markdown 字符串
-        return md_content
+        return {"content": md_content}
