@@ -100,20 +100,21 @@ async def word_to_md(file: UploadFile = File(...)):
             md_content = f.read()
 
         # 替换所有图片路径为 base64
-        for root, _, files in os.walk(media_dir):
-            for file in files:
-                img_path = os.path.join(root, file)
-                ext = os.path.splitext(file)[1][1:].lower()  # png, jpg 等
+        if os.path.exists(media_dir):
+            for root, _, files in os.walk(media_dir):
+                for file in files:
+                    img_path = os.path.join(root, file)
+                    ext = os.path.splitext(file)[1][1:].lower()  # png, jpg 等
 
-                with open(img_path, "rb") as img_file:
-                    b64_str = base64.b64encode(img_file.read()).decode("utf-8")
+                    with open(img_path, "rb") as img_file:
+                        b64_str = base64.b64encode(img_file.read()).decode("utf-8")
 
-                data_uri = f"data:image/{ext};base64,{b64_str}"
-                pattern = re.escape(file)
-                md_content = re.sub(rf'\(([^)]*{pattern})\)', f'({data_uri})', md_content)
+                    data_uri = f"data:image/{ext};base64,{b64_str}"
+                    pattern = re.escape(file)
+                    md_content = re.sub(rf'\(([^)]*{pattern})\)', f'({data_uri})', md_content)
 
-        # 清除media目录
-        shutil.rmtree(media_dir)
+            # 清除media目录
+            shutil.rmtree(media_dir)
 
         # 返回 Markdown 字符串
         return {"content": md_content}
