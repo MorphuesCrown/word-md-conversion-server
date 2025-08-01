@@ -111,7 +111,11 @@ async def word_to_md(file: UploadFile = File(...)):
 
                     data_uri = f"data:image/{ext};base64,{b64_str}"
                     pattern = re.escape(file)
-                    md_content = re.sub(rf'\(([^)]*{pattern})\)', f'({data_uri})', md_content)
+                    # 匹配多种图片链接格式
+                    # 1. 简单格式: ![alt](path)
+                    # 2. 带标题格式: ![alt](path "title")
+                    # 3. 带标题格式: ![alt](path 'title')
+                    md_content = re.sub(rf'!\[([^\]]*)\]\(([^)]*{pattern}[^)]*)\)', f'![\\1]({data_uri})', md_content)
 
             # 清除media目录
             shutil.rmtree(media_dir)
